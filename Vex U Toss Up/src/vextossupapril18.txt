@@ -1,0 +1,30 @@
+//vex toss up test shit
+//april8 2014
+
+void outtake(void);
+void stopDrive(void);
+void stopArm(void);
+void stopIntake(void);
+void clearEncoders (void);
+void driveStraight(int dist, int speed);
+void driveToLine(bool forwards);
+void driveToLine(bool forwards);
+void driveTurn(int angle, int speed, bool colour);
+void driveTurn90(bool dir, bool colour);
+void driveBrake(void);
+void driveDeadReckon(int speedL, int speedR, int time);
+void armTo(int pos, int speed);
+
+//arm pot values
+TOP = 2300-2315
+MID = 3110-3133
+BOT = 3990-4020
+//
+
+//light sensor thresholds
+NO_LINE = ~3000(L); ~3000(R)
+YES_LINE = ~200 (R); ~200 (L)
+//
+
+//Ultrasonic thresholds
+GOAL = 5-7 (6)
