@@ -77,6 +77,16 @@ void operatorControl() {
 	bool isReady = 1;
 	int command = 0;
 	int dist = 0;
+
+	//Prepare pins
+	pinMode(READY, OUTPUT);
+	pinMode(CMDA, INPUT);
+	pinMode(CMDB, INPUT);
+	pinMode(CMD0, INPUT);
+	pinMode(CMD1, INPUT);
+	pinMode(CMD2, INPUT);
+	pinMode(CMD3, INPUT);
+
 	while (1) {
 		digitalWrite(READY, isReady);
 
