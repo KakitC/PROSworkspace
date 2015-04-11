@@ -34,7 +34,11 @@
 
 #include "main.h"
 
-#define ARM 5 //Up 127
+#define DRIVE_L 1
+#define DRIVE_R 10
+#define TRIGGER 2
+#define LAUNCH_1 4
+#define LAUNCH_2 5
 
 
 /*
@@ -54,9 +58,30 @@
  *
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
+
+
 void operatorControl() {
+	while(1) {
+		motorSet(DRIVE_L, -joystickGetAnalog(1,3));
+		motorSet(DRIVE_R, joystickGetAnalog(1,2));
 
+		if (joystickGetDigital(1, 5, JOY_UP)) {
+			motorSet(TRIGGER, 127);
+		}
+		else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+			motorSet(TRIGGER, -127);
+		}
+		else {
+			motorStop(TRIGGER);
+		}
 
-
-	delay(20000);
+		if (joystickGetDigital(1, 6, JOY_UP)) {
+			motorSet(LAUNCH_1, 127);
+			motorSet(LAUNCH_2, -127);
+		}
+		else {
+			motorStop(LAUNCH_1);
+			motorStop(LAUNCH_2);
+		}
+	}
 }

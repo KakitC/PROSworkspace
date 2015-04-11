@@ -34,8 +34,27 @@
 
 #include "main.h"
 
-#define ARM 5 //Up 127
+//Motor port definitions
+#define LDRIVE 1 //Negative forwards
+#define RDRIVE 10 //Positive forwards
+#define TRIG 2 //Positive fire
+#define LAUNCHA 4 //Positive fire
+#define LAUNCHB 5 //Negative fire
 
+//Sensors
+#define TRIGPOT 1 //Analog
+
+//RPi communication digital port definitions
+#define READY 1
+#define CMDA 2 //Least significant bit
+#define CMDB 3
+#define CMD0 4 //Least significant bit
+#define CMD1 5
+#define CMD2 6
+#define CMD3 7
+
+void turn(int, int);
+void fire(void);
 
 /*
  * Runs the user operator control code. This function will be started in its own task with the
@@ -55,8 +74,83 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl() {
+	bool isReady = 1;
+	int command = 0;
+	int dist = 0;
+	while (1) {
+		digitalWrite(READY, isReady);
 
+		/* Commands
+		 * 0: do nothing
+		 * 1: Turn left
+		 * 2: Turn right
+		 * 3: Fire
+		 */
+		command = digitalRead(CMDA)
+				  + digitalRead(CMDB)*2;
+		if (command == 3) {
+			isReady = 0;
+			digitalWrite(READY, isReady);
 
+			fire();
 
-	delay(20000);
+			isReady = 1;
+		}
+		else {
+			dist = digitalRead(CMD0)
+				   + digitalRead(CMD1) * 2
+				   +  digitalRead(CMD2) * 4
+				   +  digitalRead(CMD3) * 8;
+			isReady = 0;
+			digitalWrite(READY, isReady);
+
+			turn(command - 1, dist);
+
+			isReady = 1;
+		}
+	}
+}
+
+//dir = 0 -> left, dist is a delay time.
+void turn(int dir, int dist) {
+	float distScale = 32;
+	int speed = 127;
+
+	dist = dist*distScale;
+
+	if (dir) {
+		motorSet(LDRIVE, -speed);
+		motorSet(RDRIVE, -speed);
+		delay(dist);
+		motorStop(LDRIVE);
+		motorStop(RDRIVE);
+	}
+	else {
+		motorSet(LDRIVE, speed);
+		motorSet(RDRIVE, speed);
+		delay(dist);
+		motorStop(LDRIVE);
+		motorStop(RDRIVE);
+	}
+}
+
+void fire(void) {
+	int triggerShoot = 300;
+	int triggerReady = 500;
+
+	//Spin up launcher wheel
+	motorSet(LAUNCHA, 127);
+	motorSet(LAUNCHB, -127);
+	delay(500);
+
+	while (analogRead(TRIGPOT) > triggerShoot) { //TODO Check which direction the pot goes in, and values
+		motorSet(TRIG, 127);
+	}
+	while (analogRead(TRIGPOT) < triggerReady) {
+		motorSet(TRIG, -127);
+	}
+
+	motorStop(TRIG);
+	motorStop(LAUNCHA);
+	motorStop(LAUNCHB);
 }
